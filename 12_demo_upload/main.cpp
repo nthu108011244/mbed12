@@ -21,9 +21,21 @@ void servo_control(int speed) {
 
 void encoder_control() {
    int value = encoder;
-   if (!last && value) steps++;
+   if(!last && value) steps++;
    last = value;
 }
+
+void servo_run(float speed) {
+    servo_control(speed);
+
+    steps = 0;
+    t.reset();
+    t.start();
+    ThisThread::sleep_for(5000ms);
+    float time = t.read();
+    printf("%1.3f\r\n", (float) steps * 6.5 * 3.14 / 32 / time);
+}
+
 
 int main() {
 
@@ -33,24 +45,8 @@ int main() {
 
    servo.period_ms(20);
 
-   int i = 0;
-   while (i >= -150) {
-
-      servo_control(i);
-
-      steps = 0;
-      t.reset();
-      t.start();
-
-      ThisThread::sleep_for(8000ms);
-
-      float time = t.read();
-
-      printf("%1.3f\r\n", (float)steps * 6.5 * 3.14 / 32 / time);
-
-      i -= 30;
+   while(1) {
+        servo_run(45.0);
+        servo_run(-26.6);
    }
-   servo_control(0);
-
-   while(1);
 }
